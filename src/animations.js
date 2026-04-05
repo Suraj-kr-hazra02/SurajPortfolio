@@ -88,32 +88,52 @@ function initHeroCinematic() {
   // --- Letter-by-letter name reveal ---
   const heroName = document.getElementById('heroName');
   if (heroName) {
-    // Split text into word > char spans
-    const words = heroName.innerHTML.split(/(\s+)/);
-    heroName.innerHTML = words.map(word => {
-      if (word.trim() === '') return ' ';
-      // Preserve inner HTML spans (like .highlight)
-      if (word.includes('<')) return `<span class="word" style="display:inline-block;overflow:hidden;vertical-align:bottom;">${word}</span>`;
-      const chars = word.split('').map(
-        ch => `<span class="char" style="display:inline-block;will-change:transform;">${ch}</span>`
-      ).join('');
-      return `<span class="word" style="display:inline-block;overflow:hidden;vertical-align:bottom;">${chars}</span>`;
-    }).join('');
+    // Walk child nodes: split text nodes into chars, keep element nodes intact
+    const originalNodes = Array.from(heroName.childNodes);
+    heroName.innerHTML = '';
 
-    const chars = heroName.querySelectorAll('.char');
-    tl.fromTo(chars,
-      { y: '110%', opacity: 0 },
-      { y: '0%', opacity: 1, duration: 1, stagger: 0.035, ease: 'expo.out' },
-      0
-    );
+    const charEls = [];
 
-    // Also animate the highlight word
-    const highlight = heroName.querySelector('.highlight');
-    if (highlight) {
-      tl.fromTo(highlight,
-        { opacity: 0, scale: 0.85 },
-        { opacity: 1, scale: 1, duration: 0.8, ease: 'back.out(2)' },
-        0.4
+    originalNodes.forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        // Split text into words, each word into chars
+        const words = node.textContent.trim().split(/\s+/);
+        words.forEach((word, wi) => {
+          if (!word) return;
+          const wordSpan = document.createElement('span');
+          wordSpan.className = 'word';
+          wordSpan.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:bottom;margin-right:0.25em;';
+
+          word.split('').forEach(ch => {
+            const charSpan = document.createElement('span');
+            charSpan.className = 'char';
+            charSpan.style.cssText = 'display:inline-block;will-change:transform;';
+            charSpan.textContent = ch;
+            wordSpan.appendChild(charSpan);
+            charEls.push(charSpan);
+          });
+
+          heroName.appendChild(wordSpan);
+        });
+
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        // Wrap element (e.g. .highlight span) as a whole animated word
+        const wordSpan = document.createElement('span');
+        wordSpan.className = 'word';
+        wordSpan.style.cssText = 'display:inline-block;overflow:hidden;vertical-align:bottom;';
+        // Clone the original element and wrap it
+        node.style.cssText = (node.style.cssText || '') + 'display:inline-block;will-change:transform;';
+        wordSpan.appendChild(node.cloneNode(true));
+        heroName.appendChild(wordSpan);
+        charEls.push(wordSpan.firstChild);
+      }
+    });
+
+    if (charEls.length) {
+      tl.fromTo(charEls,
+        { y: '110%', opacity: 0 },
+        { y: '0%', opacity: 1, duration: 1, stagger: 0.03, ease: 'expo.out' },
+        0
       );
     }
   }
