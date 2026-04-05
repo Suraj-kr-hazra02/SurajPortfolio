@@ -2102,6 +2102,12 @@ img {
 
 
 /* --- Premium Cursor Upgrade --- */
+@media (min-width: 769px) {
+  * {
+    cursor: none !important;
+  }
+}
+
 .cursor-dot {
   position: fixed;
   left: 0; top: 0;
