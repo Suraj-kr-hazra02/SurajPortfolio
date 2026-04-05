@@ -200,193 +200,106 @@ function initHeroCinematic() {
 }
 
 // ─────────────────────────────────────────
-// 5. SCROLL REVEAL (replaces IntersectionObserver)
+// 5. SCROLL REVEAL (Direction-Aware)
 // ─────────────────────────────────────────
 function initScrollReveal() {
-  // Generic fade-up for section tags, titles, lines
-  gsap.utils.toArray('.section-tag, .section-line').forEach(el => {
-    gsap.fromTo(el,
-      { y: 20, opacity: 0 },
-      {
-        y: 0, opacity: 1, duration: 0.7, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+  // Helper for dual-direction ScrollTrigger
+  const createDirectionalTrigger = (triggerEl, targetEls, stagger = 0) => {
+    const targets = Array.isArray(targetEls) || targetEls instanceof NodeList ? targetEls : [targetEls];
+    
+    ScrollTrigger.create({
+      trigger: triggerEl,
+      start: 'top 85%',
+      end: 'bottom 15%',
+      onEnter: () => {
+        gsap.fromTo(targets, 
+          { y: 50, opacity: 0 }, 
+          { y: 0, opacity: 1, duration: 0.8, stagger: stagger, ease: 'expo.out', overwrite: 'auto' }
+        );
+      },
+      onLeave: () => {
+        // Optional: fade out subtly when leaving top of viewport so it can re-enter
+        gsap.to(targets, { y: -30, opacity: 0, duration: 0.4, overwrite: 'auto' });
+      },
+      onEnterBack: () => {
+        // Scrolling UP: animate downward
+        gsap.fromTo(targets, 
+          { y: -50, opacity: 0 }, 
+          { y: 0, opacity: 1, duration: 0.8, stagger: stagger, ease: 'expo.out', overwrite: 'auto' }
+        );
+      },
+      onLeaveBack: () => {
+        gsap.to(targets, { y: 30, opacity: 0, duration: 0.4, overwrite: 'auto' });
       }
-    );
+    });
+  };
+
+  // Generic elements
+  gsap.utils.toArray('.section-tag, .section-line, .section-title, .subsection-title').forEach(el => {
+    createDirectionalTrigger(el, el);
   });
 
-  gsap.utils.toArray('.section-title').forEach(el => {
-    gsap.fromTo(el,
-      { y: 30, opacity: 0 },
-      {
-        y: 0, opacity: 1, duration: 0.9, ease: 'expo.out',
-        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-      }
-    );
-  });
+  // About Section Stagger
+  const aboutTexts = document.querySelectorAll('.about-text p');
+  if (aboutTexts.length) createDirectionalTrigger('.about-text', aboutTexts, 0.1);
+  
+  const aboutDetails = document.querySelectorAll('.detail-item');
+  if (aboutDetails.length) createDirectionalTrigger('.about-details', aboutDetails, 0.08);
 
-  // About text paragraphs
-  gsap.utils.toArray('.about-text p').forEach((el, i) => {
-    gsap.fromTo(el,
-      { x: -40, opacity: 0 },
-      {
-        x: 0, opacity: 1, duration: 0.8, ease: 'power3.out', delay: i * 0.1,
-        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-      }
-    );
-  });
+  const aboutCards = document.querySelectorAll('.about-card');
+  if (aboutCards.length) createDirectionalTrigger('.about-card-stack', aboutCards, 0.12);
 
-  // About detail items — stagger
-  const detailItems = document.querySelectorAll('.detail-item');
-  if (detailItems.length) {
-    gsap.fromTo(detailItems,
-      { y: 20, opacity: 0 },
-      {
-        y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: 'power3.out',
-        scrollTrigger: { trigger: detailItems[0], start: 'top 85%', once: true },
-      }
-    );
-  }
-
-  // About cards — slide from right, staggered
-  gsap.utils.toArray('.about-card').forEach((card, i) => {
-    gsap.fromTo(card,
-      { x: 50, opacity: 0 },
-      {
-        x: 0, opacity: 1, duration: 0.8, delay: i * 0.12, ease: 'expo.out',
-        scrollTrigger: { trigger: card, start: 'top 85%', once: true },
-      }
-    );
-  });
-
-  // Skill cards — stagger grid
+  // Skill Cards
   const skillCards = document.querySelectorAll('.skill-card');
-  if (skillCards.length) {
-    gsap.fromTo(skillCards,
-      { y: 30, opacity: 0, scale: 0.92 },
-      {
-        y: 0, opacity: 1, scale: 1, duration: 0.6, stagger: { amount: 0.5, from: 'start' },
-        ease: 'back.out(1.4)',
-        scrollTrigger: { trigger: '#skillsGrid', start: 'top 80%', once: true },
-      }
-    );
-  }
+  if (skillCards.length) createDirectionalTrigger('#skillsGrid', skillCards, 0.05);
 
-  // Skill bars — animate fill after cards appear
   const skillFills = document.querySelectorAll('.skill-level-fill');
   if (skillFills.length) {
-    skillFills.forEach(fill => {
-      const level = fill.dataset.level || 0;
-      gsap.fromTo(fill,
-        { width: '0%' },
-        {
-          width: `${level}%`, duration: 1.4, ease: 'power3.out',
-          scrollTrigger: { trigger: fill, start: 'top 85%', once: true },
-        }
-      );
+    ScrollTrigger.create({
+      trigger: '#skillsGrid',
+      start: 'top 80%',
+      onEnter: () => {
+        skillFills.forEach(fill => {
+          gsap.fromTo(fill, { width: '0%' }, { width: `${fill.dataset.level || 0}%`, duration: 1.4, ease: 'power3.out', overwrite: 'auto' });
+        });
+      },
+      onEnterBack: () => {
+        skillFills.forEach(fill => {
+          gsap.fromTo(fill, { width: '0%' }, { width: `${fill.dataset.level || 0}%`, duration: 1.4, ease: 'power3.out', overwrite: 'auto' });
+        });
+      }
     });
   }
 
-  // Project cards
+  // Project Cards
   const projectCards = document.querySelectorAll('.project-card');
-  if (projectCards.length) {
-    gsap.fromTo(projectCards,
-      { y: 40, opacity: 0 },
-      {
-        y: 0, opacity: 1, duration: 0.7, stagger: 0.12, ease: 'expo.out',
-        scrollTrigger: { trigger: '#projectsGrid', start: 'top 80%', once: true },
-      }
-    );
-  }
+  if (projectCards.length) createDirectionalTrigger('#projectsGrid', projectCards, 0.1);
 
-  // GitHub stat cards
+  // GitHub Stats
   const ghStatCards = document.querySelectorAll('.gh-stat-card');
-  if (ghStatCards.length) {
-    gsap.fromTo(ghStatCards,
-      { y: 30, opacity: 0, scale: 0.9 },
-      {
-        y: 0, opacity: 1, scale: 1, duration: 0.6, stagger: 0.1, ease: 'back.out(1.2)',
-        scrollTrigger: { trigger: '#githubLiveStats', start: 'top 80%', once: true },
-      }
-    );
-  }
+  if (ghStatCards.length) createDirectionalTrigger('#githubLiveStats', ghStatCards, 0.1);
 
-  // Chart cards
-  gsap.utils.toArray('.github-chart-card').forEach((card, i) => {
-    gsap.fromTo(card,
-      { x: i % 2 === 0 ? -50 : 50, opacity: 0 },
-      {
-        x: 0, opacity: 1, duration: 0.9, ease: 'expo.out',
-        scrollTrigger: { trigger: card, start: 'top 80%', once: true },
-      }
-    );
-  });
+  // Chart Cards
+  const chartCards = document.querySelectorAll('.github-chart-card');
+  if (chartCards.length) createDirectionalTrigger('.github-charts-row', chartCards, 0.2);
 
-  // Timeline items — alternating slide
-  gsap.utils.toArray('.timeline-item').forEach((item, i) => {
-    gsap.fromTo(item,
-      { x: i % 2 === 0 ? -40 : 40, opacity: 0 },
-      {
-        x: 0, opacity: 1, duration: 0.8, ease: 'expo.out',
-        scrollTrigger: { trigger: item, start: 'top 85%', once: true },
-      }
-    );
-  });
+  // Timeline Items
+  const timelineItems = document.querySelectorAll('.timeline-item');
+  if (timelineItems.length) createDirectionalTrigger('#timeline', timelineItems, 0.15);
 
-  // Certificate cards
+  // Certificates
   const certCards = document.querySelectorAll('.cert-card');
-  if (certCards.length) {
-    gsap.fromTo(certCards,
-      { y: 40, opacity: 0, rotateX: 15 },
-      {
-        y: 0, opacity: 1, rotateX: 0, duration: 0.7, stagger: 0.1, ease: 'back.out(1.2)',
-        scrollTrigger: { trigger: '#certsGrid', start: 'top 80%', once: true },
-      }
-    );
-  }
+  if (certCards.length) createDirectionalTrigger('#certsGrid', certCards, 0.1);
 
-  // Contact section
+  // Contact
   const contactInfo = document.querySelector('.contact-info');
+  if (contactInfo) createDirectionalTrigger(contactInfo, contactInfo);
+  
   const contactForm = document.querySelector('.contact-form');
-  if (contactInfo) {
-    gsap.fromTo(contactInfo,
-      { x: -50, opacity: 0 },
-      {
-        x: 0, opacity: 1, duration: 0.9, ease: 'expo.out',
-        scrollTrigger: { trigger: contactInfo, start: 'top 80%', once: true },
-      }
-    );
-  }
-  if (contactForm) {
-    gsap.fromTo(contactForm,
-      { x: 50, opacity: 0 },
-      {
-        x: 0, opacity: 1, duration: 0.9, ease: 'expo.out',
-        scrollTrigger: { trigger: contactForm, start: 'top 80%', once: true },
-      }
-    );
-  }
-
-  // Contact link items
-  gsap.utils.toArray('.contact-link-item').forEach((item, i) => {
-    gsap.fromTo(item,
-      { x: -30, opacity: 0 },
-      {
-        x: 0, opacity: 1, duration: 0.6, delay: i * 0.1, ease: 'power3.out',
-        scrollTrigger: { trigger: item, start: 'top 88%', once: true },
-      }
-    );
-  });
-
-  // Subsection title
-  gsap.utils.toArray('.subsection-title').forEach(el => {
-    gsap.fromTo(el,
-      { y: 20, opacity: 0 },
-      {
-        y: 0, opacity: 1, duration: 0.7, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-      }
-    );
-  });
+  if (contactForm) createDirectionalTrigger(contactForm, contactForm);
+  
+  const contactLinks = document.querySelectorAll('.contact-link-item');
+  if (contactLinks.length) createDirectionalTrigger('.contact-links', contactLinks, 0.1);
 }
 
 // ─────────────────────────────────────────
@@ -516,6 +429,7 @@ export function initGSAPCursor() {
   document.body.style.cursor = 'none';
 
   let mouseX = 0, mouseY = 0;
+  const orbs = document.querySelectorAll('.bg-orb');
 
   document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
@@ -538,6 +452,19 @@ export function initGSAPCursor() {
       ease: 'power3.out',
       overwrite: 'auto',
     });
+
+    // Mouse Parallax on Orbs
+    const offsetX = (mouseX / window.innerWidth - 0.5) * 60; // Max shift 30px
+    const offsetY = (mouseY / window.innerHeight - 0.5) * 60;
+    if (orbs.length) {
+      gsap.to(orbs, {
+        x: `+=${offsetX}`, 
+        y: `+=${offsetY}`,
+        duration: 1.5,
+        ease: 'power2.out',
+        overwrite: 'auto'
+      });
+    }
   });
 
   // Hover expand effect

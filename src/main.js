@@ -3,6 +3,7 @@
    ======================================== */
 import * as THREE from 'three';
 import Lenis from 'lenis';
+import gsap from 'gsap';
 import { initAnimations, refreshScrollTriggers } from './animations.js';
 
 // ---- DATA ----
@@ -130,28 +131,63 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ========================================
-// 🎬 CINEMATIC LOADING SCREEN
+// 🎬 CINEMATIC LOADING SCREEN (GSAP Powered)
 // ========================================
 function initLoader() {
   const loader = document.getElementById('loader');
   const bar = document.getElementById('loaderBar');
-  let progress = 0;
+  const percentText = document.getElementById('loaderPercent');
 
-  const interval = setInterval(() => {
-    progress += Math.random() * 15 + 5;
-    if (progress > 90) progress = 90;
-    bar.style.width = progress + '%';
-  }, 200);
+  // Set initial loader state
+  gsap.set(loader, { clipPath: 'inset(0% 0% 0% 0%)' });
+  
+  // Stagger in the loader UI elements
+  gsap.fromTo('.loader-logo, .loader-bar-track, .loader-text', 
+    { y: 20, opacity: 0 }, 
+    { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power3.out' }
+  );
 
-  window.addEventListener('load', () => {
-    clearInterval(interval);
-    bar.style.width = '100%';
-    setTimeout(() => {
-      loader.classList.add('hidden');
-      document.body.classList.remove('loading');
-      // 🎬 Kick off GSAP cinematic entrance after loader hides
-      initAnimations(lenis);
-    }, 600);
+  // Animate progress 0 -> 100
+  const progressObj = { value: 0 };
+  
+  gsap.to(progressObj, {
+    value: 100,
+    duration: 2.5,
+    ease: 'power2.inOut',
+    onUpdate: () => {
+      const p = Math.round(progressObj.value);
+      if (bar) bar.style.width = p + '%';
+      if (percentText) percentText.innerText = p + '%';
+    },
+    onComplete: () => {
+      // Cinematic Exit Reveal
+      const tl = gsap.timeline({
+        onComplete: () => {
+          loader.classList.add('hidden');
+          document.body.classList.remove('loading');
+          // 🎬 Kick off GSAP cinematic entrance
+          initAnimations(lenis);
+        }
+      });
+      
+      tl.to('.loader-content', {
+        y: -40,
+        opacity: 0,
+        duration: 0.6,
+        ease: 'power3.in'
+      })
+      .to(loader, {
+        clipPath: 'inset(100% 0% 0% 0%)', // Wipes up
+        duration: 1,
+        ease: 'expo.inOut' // Premium cinematic feel
+      }, "-=0.3")
+      // Slight scale-down pop of the hero section as it reveals
+      .fromTo('#hero', 
+        { scale: 1.05, filter: 'blur(10px)' }, 
+        { scale: 1, filter: 'blur(0px)', duration: 1.2, ease: 'expo.out' }, 
+        "-=0.6"
+      );
+    }
   });
 }
 

@@ -2131,13 +2131,17 @@ img {
   top: 0;
   transform: translate(-50%, -50%);
   will-change: transform;
+  box-shadow: 0 0 10px 2px var(--accent-primary);
+  z-index: 10000;
 }
 
 .cursor-ring {
   left: 0;
   top: 0;
   transform: translate(-50%, -50%);
-  will-change: transform;
+  will-change: transform, border-color;
+  box-shadow: inset 0 0 8px rgba(108, 99, 255, 0.3), 0 0 8px rgba(108, 99, 255, 0.3);
+  z-index: 9999;
 }
 
 /* --- Timeline dot pulse --- */
