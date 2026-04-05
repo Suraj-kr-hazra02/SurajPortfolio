@@ -2101,6 +2101,19 @@ img {
 
 
 
+/* --- Sun Emoji Cursor --- */
+.sun-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  font-size: 24px;
+  pointer-events: none;
+  z-index: 10001;
+  will-change: transform;
+  /* GSAP handles transform translate */
+  filter: drop-shadow(0 0 8px rgba(255, 200, 0, 0.6));
+}
+
 /* --- Timeline dot pulse --- */
 .timeline-dot {
   animation: timelinePulse 2s ease-in-out infinite;

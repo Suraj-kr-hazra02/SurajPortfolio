@@ -25,7 +25,7 @@ export function initAnimations(lenis) {
   initParallax();
   initProjectCardHover();
   initMagneticButtons();
-  initMouseParallax();
+  initMouseAndCursor();
 }
 
 // ─────────────────────────────────────────
@@ -417,10 +417,16 @@ function initMagneticButtons() {
 }
 
 // ─────────────────────────────────────────
-// 9. MOUSE PARALLAX (Background Orbs)
+// 9. MOUSE PARALLAX & SUN CURSOR
 // ─────────────────────────────────────────
-export function initMouseParallax() {
+export function initMouseAndCursor() {
   if (isMobile || 'ontouchstart' in window) return;
+
+  const sun = document.getElementById('sunCursor');
+  if (sun) {
+    document.body.style.cursor = 'none';
+    gsap.set(sun, { xPercent: -50, yPercent: -50, transformOrigin: 'center center' });
+  }
 
   let mouseX = 0, mouseY = 0;
   const orbs = document.querySelectorAll('.bg-orb');
@@ -428,6 +434,16 @@ export function initMouseParallax() {
   document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
+
+    if (sun) {
+      gsap.to(sun, {
+        x: mouseX,
+        y: mouseY,
+        duration: 0.1,
+        ease: 'none',
+        overwrite: 'auto',
+      });
+    }
 
     // Mouse Parallax on Orbs
     const offsetX = (mouseX / window.innerWidth - 0.5) * 60; // Max shift 30px
@@ -442,6 +458,23 @@ export function initMouseParallax() {
       });
     }
   });
+
+  if (sun) {
+    // Hover expand effect
+    const hoverEls = document.querySelectorAll('a, button, .btn, .project-card, .skill-card, .cert-card, .contact-link-item, .nav-link, .theme-toggle');
+    hoverEls.forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        gsap.to(sun, { scale: 1.5, rotate: 45, duration: 0.3 });
+      });
+      el.addEventListener('mouseleave', () => {
+        gsap.to(sun, { scale: 1, rotate: 0, duration: 0.3 });
+      });
+    });
+
+    // Hide on mouse out of window
+    document.addEventListener('mouseleave', () => gsap.to(sun, { opacity: 0, duration: 0.3 }));
+    document.addEventListener('mouseenter', () => gsap.to(sun, { opacity: 1, duration: 0.3 }));
+  }
 }
 
 // ─────────────────────────────────────────
