@@ -714,11 +714,12 @@ img {
 }
 
 .hero-name {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-size: clamp(1.8rem, 4.2vw, 3.6rem);
   font-weight: 900;
   line-height: 1.1;
   letter-spacing: -0.03em;
   margin: 12px 0 16px;
+  white-space: nowrap;
 }
 
 .hero-title-wrapper {
@@ -1861,8 +1862,9 @@ img {
   }
 
   .hero-name {
-    font-size: clamp(2rem, 8vw, 2.5rem);
+    font-size: clamp(1.6rem, 7vw, 2.4rem);
     margin-bottom: 8px;
+    white-space: normal;
   }
 
   .hero-title-wrapper {
