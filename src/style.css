@@ -1960,3 +1960,256 @@ img {
     font-size: 0.9rem;
   }
 }
+
+/* ========================================
+   PREMIUM GSAP ANIMATION ADDITIONS
+   ======================================== */
+
+/* --- Scroll Progress Bar --- */
+#scrollProgress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent-gradient);
+  transform-origin: left center;
+  transform: scaleX(0);
+  z-index: 9998;
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* --- Noise / Grain Overlay --- */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* --- Background Orbs --- */
+.bg-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+
+.orb-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(180, 160, 229, 0.12) 0%, transparent 70%);
+  top: -200px;
+  right: -200px;
+}
+
+.orb-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(126, 182, 252, 0.08) 0%, transparent 70%);
+  bottom: 20%;
+  left: -150px;
+}
+
+.orb-3 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(180, 160, 229, 0.07) 0%, transparent 70%);
+  top: 50%;
+  left: 40%;
+}
+
+[data-theme="light"] .orb-1 {
+  background: radial-gradient(circle, rgba(138, 110, 214, 0.08) 0%, transparent 70%);
+}
+[data-theme="light"] .orb-2 {
+  background: radial-gradient(circle, rgba(74, 142, 224, 0.06) 0%, transparent 70%);
+}
+[data-theme="light"] .orb-3 {
+  background: radial-gradient(circle, rgba(138, 110, 214, 0.05) 0%, transparent 70%);
+}
+
+/* --- SplitText char/word spans --- */
+.hero-name .word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.hero-name .char {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* --- Hero image GPU hint --- */
+.hero-image-wrapper {
+  will-change: transform;
+}
+
+/* --- Project Card — enhanced hover --- */
+.project-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.project-image {
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+
+/* Overlay on project images */
+.project-image-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.project-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(19, 17, 28, 0.7) 100%
+  );
+  opacity: 0;
+  will-change: opacity;
+  pointer-events: none;
+}
+
+[data-theme="light"] .project-overlay {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(100, 80, 160, 0.3) 100%
+  );
+}
+
+.project-content {
+  will-change: transform;
+}
+
+/* --- CTA Button glow pulse --- */
+.btn-primary {
+  position: relative;
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: var(--radius-md);
+  background: var(--accent-gradient);
+  opacity: 0;
+  z-index: -1;
+  filter: blur(12px);
+  transition: opacity 0.4s ease;
+}
+
+.btn-primary:hover::after {
+  opacity: 0.5;
+}
+
+/* --- Magnetic element override (prevent layout shift) --- */
+.btn,
+.nav-logo,
+.footer-social-link,
+.project-link {
+  will-change: transform;
+}
+
+/* --- Cursor upgrade: use transform instead of left/top --- */
+.cursor-dot {
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+
+.cursor-ring {
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
+
+/* --- Timeline dot pulse --- */
+.timeline-dot {
+  animation: timelinePulse 2s ease-in-out infinite;
+}
+
+@keyframes timelinePulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+  50% { box-shadow: 0 0 0 8px transparent; }
+}
+
+/* --- Section transitions GPU hint --- */
+.section, .section-alt {
+  will-change: auto;
+}
+
+/* --- Skill card hover upgrade --- */
+.skill-card {
+  will-change: transform;
+}
+
+/* --- Cert card 3D perspective --- */
+.cert-card {
+  will-change: transform;
+}
+
+/* --- Subsection title --- */
+.subsection-title {
+  will-change: transform;
+}
+
+/* ========================================
+   RESPONSIVE — ANIMATION SIMPLIFICATIONS
+   ======================================== */
+@media (max-width: 768px) {
+  /* Disable 3D tilt on mobile */
+  .project-card {
+    transform-style: flat;
+  }
+
+  .bg-orb {
+    display: none; /* Too heavy for mobile */
+  }
+
+  .noise-overlay {
+    display: none;
+  }
+
+  #scrollProgress {
+    height: 2px;
+  }
+}
+
+/* ========================================
+   REDUCED MOTION — Full Disable
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .bg-orb,
+  .noise-overlay,
+  #scrollProgress {
+    display: none;
+  }
+
+  .cursor-dot,
+  .cursor-ring {
+    display: none !important;
+  }
+}

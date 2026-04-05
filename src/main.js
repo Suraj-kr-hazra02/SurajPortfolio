@@ -3,6 +3,7 @@
    ======================================== */
 import * as THREE from 'three';
 import Lenis from 'lenis';
+import { initAnimations, refreshScrollTriggers } from './animations.js';
 
 // ---- DATA ----
 const SKILLS = [
@@ -148,10 +149,8 @@ function initLoader() {
     setTimeout(() => {
       loader.classList.add('hidden');
       document.body.classList.remove('loading');
-      // Trigger hero animations after loader is gone
-      document.querySelectorAll('.hero .fade-up, .hero .fade-left, .hero .fade-right, .hero .fade-scale').forEach(el => {
-        el.classList.add('visible');
-      });
+      // 🎬 Kick off GSAP cinematic entrance after loader hides
+      initAnimations(lenis);
     }, 600);
   });
 }
@@ -166,7 +165,9 @@ function initLenis() {
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     touchMultiplier: 2,
   });
-
+  // NOTE: The RAF loop is handled by GSAP ticker in animations.js
+  // after initAnimations() is called. During load, we still need
+  // a basic loop so smooth scroll works before loader hides.
   function raf(time) {
     lenis.raf(time);
     requestAnimationFrame(raf);
@@ -573,7 +574,10 @@ function renderProjects() {
   const grid = document.getElementById('projectsGrid');
   grid.innerHTML = PROJECTS.map(project => `
     <div class="project-card">
-      <img src="${project.image}" alt="${project.title}" class="project-image" loading="lazy" />
+      <div class="project-image-wrap">
+        <img src="${project.image}" alt="${project.title}" class="project-image" loading="lazy" />
+        <div class="project-overlay"></div>
+      </div>
       <div class="project-content">
         <div class="project-tags">
           ${project.tags.map(tag => `<span class="project-tag">${tag}</span>`).join('')}
@@ -700,7 +704,6 @@ function initContactForm() {
 // ========================================
 async function fetchGitHubData() {
   try {
-    // Fetch user data + repos in parallel
     const [userRes, reposRes] = await Promise.all([
       fetch(`https://api.github.com/users/${GITHUB_USERNAME}`),
       fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=stars&per_page=10`),
@@ -711,7 +714,6 @@ async function fetchGitHubData() {
     const user = await userRes.json();
     const repos = await reposRes.json();
 
-    // --- Live Stats ---
     const totalStars = repos.reduce((sum, r) => sum + r.stargazers_count, 0);
     const totalForks = repos.reduce((sum, r) => sum + r.forks_count, 0);
 
@@ -720,11 +722,11 @@ async function fetchGitHubData() {
     animateValue('ghForkCount', totalForks);
     animateValue('ghFollowers', user.followers);
 
-    // --- Repo Cards ---
     renderGitHubRepos(repos.filter(r => !r.fork).slice(0, 6));
-
-    // --- Language Donut Chart ---
     renderLanguageDonut(repos);
+
+    // Refresh GSAP ScrollTrigger + add hover animations to dynamic cards
+    setTimeout(() => refreshScrollTriggers(), 100);
 
   } catch (error) {
     console.error('Error fetching GitHub data:', error);
@@ -752,7 +754,7 @@ function renderGitHubRepos(repos) {
   }
 
   grid.innerHTML = repos.map(repo => `
-    <div class="project-card fade-up visible">
+    <div class="project-card">
       <div class="project-content" style="height:100%;display:flex;flex-direction:column;">
         <div class="project-tags">
           ${repo.language ? `<span class="project-tag"><span class="lang-dot" style="background:${LANG_COLORS[repo.language] || '#8b8b8b'}"></span>${repo.language}</span>` : ''}

@@ -19,6 +19,17 @@
 
 <body>
 
+  <!-- ============ SCROLL PROGRESS ============ -->
+  <div id="scrollProgress"></div>
+
+  <!-- ============ NOISE OVERLAY ============ -->
+  <div class="noise-overlay" aria-hidden="true"></div>
+
+  <!-- ============ BACKGROUND ORBS ============ -->
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
+  <div class="bg-orb orb-3" aria-hidden="true"></div>
+
   <!-- ============ LOADING SCREEN ============ -->
   <div class="loader" id="loader">
     <div class="loader-content">
@@ -81,10 +92,10 @@
   <section class="hero" id="hero">
     <div class="hero-content">
       <div class="hero-text">
-        <p class="hero-greeting fade-up">
+        <p class="hero-greeting" id="heroGreeting">
           <span class="greeting-wave">👋</span> Hello, I'm
         </p>
-        <h1 class="hero-name fade-up delay-1">
+        <h1 class="hero-name" id="heroName" data-animate="split">
           Suraj Kr. <span class="highlight">Hazra</span>
         </h1>
         <div class="hero-title-wrapper fade-up delay-2">
