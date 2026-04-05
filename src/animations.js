@@ -428,6 +428,9 @@ export function initGSAPCursor() {
 
   document.body.style.cursor = 'none';
 
+  // Fix: Center cursor properly since we removed CSS translate(-50%, -50%) to avoid fighting GSAP
+  gsap.set([dot, ring], { xPercent: -50, yPercent: -50 });
+
   let mouseX = 0, mouseY = 0;
   const orbs = document.querySelectorAll('.bg-orb');
 
