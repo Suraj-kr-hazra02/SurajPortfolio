@@ -239,35 +239,7 @@ img {
   }
 }
 
-/* ========================================
-   CUSTOM CURSOR
-   ======================================== */
-.cursor-dot {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 6px;
-  height: 6px;
-  background: var(--accent-primary);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 10001;
-  /* GSAP handles transform and transitions */
-}
 
-.cursor-ring {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 36px;
-  height: 36px;
-  border: 1.5px solid var(--accent-primary);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 10000;
-  opacity: 0.5;
-  /* GSAP handles transform and transitions */
-}
 
 .cursor-dot.hovering {
   width: 10px;
@@ -2127,18 +2099,7 @@ img {
   will-change: transform;
 }
 
-/* --- Cursor upgrade: use transform instead of left/top --- */
-.cursor-dot {
-  will-change: transform;
-  box-shadow: 0 0 10px 2px var(--accent-primary);
-  z-index: 10000;
-}
 
-.cursor-ring {
-  will-change: transform, border-color;
-  box-shadow: inset 0 0 8px rgba(108, 99, 255, 0.3), 0 0 8px rgba(108, 99, 255, 0.3);
-  z-index: 9999;
-}
 
 /* --- Timeline dot pulse --- */
 .timeline-dot {

@@ -25,7 +25,7 @@ export function initAnimations(lenis) {
   initParallax();
   initProjectCardHover();
   initMagneticButtons();
-  initGSAPCursor();
+  initMouseParallax();
 }
 
 // ─────────────────────────────────────────
@@ -417,19 +417,10 @@ function initMagneticButtons() {
 }
 
 // ─────────────────────────────────────────
-// 9. GSAP-POWERED CUSTOM CURSOR
+// 9. MOUSE PARALLAX (Background Orbs)
 // ─────────────────────────────────────────
-export function initGSAPCursor() {
+export function initMouseParallax() {
   if (isMobile || 'ontouchstart' in window) return;
-
-  const dot = document.getElementById('cursorDot');
-  const ring = document.getElementById('cursorRing');
-  if (!dot || !ring) return;
-
-  document.body.style.cursor = 'none';
-
-  // Fix: Center cursor properly since we removed CSS translate(-50%, -50%) to avoid fighting GSAP
-  gsap.set([dot, ring], { xPercent: -50, yPercent: -50 });
 
   let mouseX = 0, mouseY = 0;
   const orbs = document.querySelectorAll('.bg-orb');
@@ -437,24 +428,6 @@ export function initGSAPCursor() {
   document.addEventListener('mousemove', (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
-
-    // Dot follows instantly
-    gsap.to(dot, {
-      x: mouseX,
-      y: mouseY,
-      duration: 0.08,
-      ease: 'none',
-      overwrite: 'auto',
-    });
-
-    // Ring follows with smooth lag
-    gsap.to(ring, {
-      x: mouseX,
-      y: mouseY,
-      duration: 0.45,
-      ease: 'power3.out',
-      overwrite: 'auto',
-    });
 
     // Mouse Parallax on Orbs
     const offsetX = (mouseX / window.innerWidth - 0.5) * 60; // Max shift 30px
@@ -469,23 +442,6 @@ export function initGSAPCursor() {
       });
     }
   });
-
-  // Hover expand effect
-  const hoverEls = document.querySelectorAll('a, button, .btn, .project-card, .skill-card, .cert-card, .contact-link-item, .nav-link, .theme-toggle');
-  hoverEls.forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      gsap.to(dot, { scale: 2, background: 'var(--accent-secondary)', duration: 0.3 });
-      gsap.to(ring, { scale: 1.6, borderColor: 'var(--accent-secondary)', opacity: 0.4, duration: 0.3 });
-    });
-    el.addEventListener('mouseleave', () => {
-      gsap.to(dot, { scale: 1, background: 'var(--accent-primary)', duration: 0.3 });
-      gsap.to(ring, { scale: 1, borderColor: 'var(--accent-primary)', opacity: 0.5, duration: 0.3 });
-    });
-  });
-
-  // Hide on mouse out of window
-  document.addEventListener('mouseleave', () => gsap.to([dot, ring], { opacity: 0, duration: 0.3 }));
-  document.addEventListener('mouseenter', () => gsap.to([dot, ring], { opacity: 1, duration: 0.3 }));
 }
 
 // ─────────────────────────────────────────
