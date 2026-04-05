@@ -25,7 +25,7 @@ export function initAnimations(lenis) {
   initParallax();
   initProjectCardHover();
   initMagneticButtons();
-  initMouseAndCursor();
+  initMouseParallax();
 }
 
 // ─────────────────────────────────────────
@@ -417,66 +417,23 @@ function initMagneticButtons() {
 }
 
 // ─────────────────────────────────────────
-// 9. PREMIUM CURSOR & MOUSE PARALLAX
+// 9. MOUSE PARALLAX (Background Orbs)
 // ─────────────────────────────────────────
-export function initMouseAndCursor() {
+export function initMouseParallax() {
   if (isMobile || 'ontouchstart' in window) return;
-
-  const dot = document.getElementById('cursorDot');
-  const ring = document.getElementById('cursorRing');
-  
-  if (dot && ring) {
-    document.body.style.cursor = 'none';
-    gsap.set([dot, ring], { xPercent: -50, yPercent: -50, transformOrigin: 'center center' });
-  }
-
-  // Setup GSAP QuickTo for 60fps high performance (lerping built-in)
-  const xToDot = gsap.quickTo(dot, "x", { duration: 0.02, ease: "none" });
-  const yToDot = gsap.quickTo(dot, "y", { duration: 0.02, ease: "none" });
-  
-  const xToRing = gsap.quickTo(ring, "x", { duration: 0.45, ease: "power3.out" });
-  const yToRing = gsap.quickTo(ring, "y", { duration: 0.45, ease: "power3.out" });
 
   const orbs = document.querySelectorAll('.bg-orb');
 
   document.addEventListener('mousemove', (e) => {
     const { clientX: x, clientY: y } = e;
 
-    if (dot && ring) {
-      xToDot(x); yToDot(y);
-      xToRing(x); yToRing(y);
-    }
-
     // Mouse Parallax on Orbs
-    const offsetX = (x / window.innerWidth - 0.5) * 60;
+    const offsetX = (x / window.innerWidth - 0.5) * 60; // Max shift 30px
     const offsetY = (y / window.innerHeight - 0.5) * 60;
     if (orbs.length) {
       gsap.to(orbs, { x: `+=${offsetX}`, y: `+=${offsetY}`, duration: 1.5, ease: 'power2.out', overwrite: 'auto' });
     }
   });
-
-  if (dot && ring) {
-    // Hover expand effect
-    const hoverEls = document.querySelectorAll('a, button, .btn, .project-card, .skill-card, .cert-card, .contact-link-item, .nav-link, .theme-toggle');
-    hoverEls.forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        gsap.to(dot, { scale: 0.5, opacity: 0.5, duration: 0.3 });
-        gsap.to(ring, { scale: 1.8, opacity: 0.1, duration: 0.3 });
-      });
-      el.addEventListener('mouseleave', () => {
-        gsap.to(dot, { scale: 1, opacity: 1, duration: 0.3 });
-        gsap.to(ring, { scale: 1, opacity: 0.35, duration: 0.3 });
-      });
-    });
-
-    // Mousedown Pulse
-    document.addEventListener('mousedown', () => gsap.to(ring, { scale: 0.8, opacity: 0.8, duration: 0.15 }));
-    document.addEventListener('mouseup', () => gsap.to(ring, { scale: 1, opacity: 0.35, duration: 0.3, ease: 'back.out(2)' }));
-
-    // Hide/Show on window bounds
-    document.addEventListener('mouseleave', () => gsap.to([dot, ring], { opacity: 0, duration: 0.3 }));
-    document.addEventListener('mouseenter', () => gsap.to([dot, ring], { opacity: 1, duration: 0.3 }));
-  }
 }
 
 // ─────────────────────────────────────────
